@@ -1,0 +1,6 @@
+{
+  "name": "B-Ultra",
+  "description": "Multi-platform high-speed media downloader",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
