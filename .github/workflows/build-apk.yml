@@ -2,12 +2,9 @@ name: Build APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
-  # يتيح لك تشغيل الـ workflow يدوياً من تبويب Actions
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -15,11 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) تحميل الكود
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2) إعداد Java 17 (مطلوب لـ AGP الحديث وـ Chaquopy)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -27,36 +22,26 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      # 3) إعداد Python (مطلوب لـ Chaquopy حتى يجد python3 في PATH)
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 4) صلاحيات gradlew
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
 
-      # 5) إنشاء ملف .env الذي يقرأه مكوّن secrets في Gradle
-      #    GEMINI_API_KEY مخزّن كـ Secret في إعدادات الـ repo
       - name: Create .env file
-        run: |
-          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
 
-      # 6) استخراج debug.keystore من الملف المرفق في الريبو
       - name: Decode debug keystore
-        run: |
-          base64 --decode debug.keystore.base64 > debug.keystore
+        run: base64 --decode debug.keystore.base64 > debug.keystore
 
-      # 7) بناء APK (debug)
       - name: Build Debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      # 8) رفع الـ APK كـ artifact يمكن تحميله من صفحة Actions
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
-
